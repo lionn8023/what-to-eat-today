@@ -1,0 +1,67 @@
+.map {
+  width: 100%;
+  height: 440px;
+  background: #e9eef5;
+  border: var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+/* 高德默认 logo/版权信息在硬阴影卡片里也尽量收敛一点 */
+.map :global(.amap-logo),
+.map :global(.amap-copyright) {
+  opacity: 0.6;
+}
+
+.mapError {
+  width: 100%;
+  height: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 24px;
+  background: var(--white);
+  border: var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.infoWin {
+  min-width: 160px;
+  max-width: 240px;
+  padding: 10px 12px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+}
+
+.infoName {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--black);
+  margin-bottom: 4px;
+}
+
+.infoAddr {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.infoMeta {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--pink-dark);
+}
+
+@media (max-width: 880px) {
+  .map,
+  .mapError {
+    height: 320px;
+  }
+}

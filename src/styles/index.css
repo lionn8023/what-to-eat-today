@@ -1,0 +1,37 @@
+:root {
+  --pink: #ff4d8d;
+  --pink-dark: #e91e63;
+  --yellow: #ffc72c;
+  --blue: #3b82f6;
+  --black: #1a1a1a;
+  --gray: #f5f5f5;
+  --text-secondary: #666666;
+  --white: #ffffff;
+  --border: 3px solid var(--black);
+  --shadow: 6px 6px 0px var(--black);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--gray);
+  color: var(--black);
+}
+
+button {
+  font-family: inherit;
+}
+
+input {
+  font-family: inherit;
+}
