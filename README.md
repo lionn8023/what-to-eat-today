@@ -10,6 +10,9 @@
 - 🎰 **命运大转盘**：从结果中随机抽取 12 家进入转盘，公平公正地帮你决定
 - 📋 **店铺详情**：评分、人均、电话、营业时间、照片，一键在高德地图打开
 - 💾 **记忆上次搜索**：自动恢复上一次的位置、范围与筛选条件
+- 🔐 **账号登录**：邮箱密码 / 魔法链接登录（Supabase Auth）
+- ❤️ **收藏想吃清单**：把心动的店收藏起来，跨设备同步
+- 🕘 **抽签历史**：每次转盘结果自动记录成时间线，回顾「最近都吃了啥」
 
 ## 🛠 技术栈
 
@@ -57,3 +60,42 @@ src/
     district.js            # 省/市行政区划数据
   styles/index.css         # 全局变量与基础样式
 ```
+
+## 🗄 接入 Supabase（收藏 / 历史 / 登录）
+
+数据库功能（登录、收藏、抽签历史）由 [Supabase](https://supabase.com) 提供，免费层足够个人作品集使用。
+**未配置时应用自动降级**：地图、转盘等核心功能照常工作，仅登录/收藏入口隐藏。
+
+### 1. 建 Supabase 项目
+
+1. 在 [supabase.com](https://supabase.com) 用 GitHub 登录 → **New Project**
+2. 进入项目 → **Project Settings → API**，复制：
+   - **Project URL**
+   - **anon public key**（前端可公开，权限由下方 RLS 控制）
+3. 进入 **SQL Editor**，新建查询，把本项目 `sql/schema.sql` 的完整内容粘贴进去并运行（建表 + 开启行级安全）
+
+### 2. 配置环境变量
+
+**本地开发**：编辑 `.env.local`，补充：
+```
+VITE_SUPABASE_URL=你的ProjectURL
+VITE_SUPABASE_ANON_KEY=你的anonKey
+```
+
+**Vercel 部署**：项目 **Settings → Environment Variables** 添加：
+```
+VITE_SUPABASE_URL
+VITE_SUPABASE_ANON_KEY
+SUPABASE_URL            # 服务端保活函数用（与上面同值）
+SUPABASE_ANON_KEY       # 服务端保活函数用（与上面同值）
+```
+
+### 3. 关于安全（重要）
+
+- 前端使用的 `VITE_SUPABASE_ANON_KEY` 是**设计上可公开**的 key，真正的数据权限由数据库 **RLS（行级安全）** 策略控制——每个用户只能读写自己的 `favorites` / `draw_history` 行（见 `sql/schema.sql`）。
+- **切勿**把 Supabase 的 `service_role` key 放进任何 `VITE_` 前缀变量，那会暴露后端超管权限。
+- 免费项目连续 7 天无数据库活动会被自动暂停。本项目已内置 `api/keepalive.js` + Vercel 每日 cron 自动保活，无需手动处理。
+
+### 4. 部署后验证
+
+打开线上站 → 点右上角「登录」→ 注册/登录 → 在店铺详情或列表点 ♥ 收藏 → 转一次大转盘 → 打开「📚 美食库」抽屉，应能看到收藏与抽签历史。

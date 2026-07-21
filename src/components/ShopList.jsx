@@ -1,7 +1,11 @@
 import React from 'react'
 import styles from './ShopList.module.css'
+import { useAuth } from '../context/AuthContext.jsx'
+import { useFavorites } from '../context/FavoritesContext.jsx'
 
 export default function ShopList({ shops, onSpin, onSelectShop }) {
+  const { user } = useAuth()
+  const { isFavorite, toggleFavorite } = useFavorites()
   if (shops.length === 0) {
     return null
   }
@@ -28,6 +32,19 @@ export default function ShopList({ shops, onSpin, onSelectShop }) {
             role="button"
             tabIndex={0}
           >
+            {user && (
+              <button
+                className={styles.favIcon}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  toggleFavorite(shop)
+                }}
+                title={isFavorite(shop.id) ? '取消收藏' : '收藏'}
+                style={{ color: isFavorite(shop.id) ? 'var(--pink)' : 'var(--black)' }}
+              >
+                {isFavorite(shop.id) ? '♥' : '♡'}
+              </button>
+            )}
             <div className={styles.index}>{index + 1}</div>
             <div className={styles.info}>
               <h3 className={styles.name}>{shop.name}</h3>

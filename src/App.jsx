@@ -4,6 +4,11 @@ import ShopList from './components/ShopList.jsx'
 import Wheel from './components/Wheel.jsx'
 import MapView from './components/MapView.jsx'
 import ShopDetail from './components/ShopDetail.jsx'
+import AuthModal from './components/AuthModal.jsx'
+import FavoritesDrawer from './components/FavoritesDrawer.jsx'
+import { AuthProvider, useAuth } from './context/AuthContext.jsx'
+import { FavoritesProvider } from './context/FavoritesContext.jsx'
+import { addHistory } from './services/history.js'
 import { searchNearby } from './services/amap.js'
 import styles from './App.module.css'
 
@@ -19,7 +24,8 @@ function loadSavedSearch() {
 
 const savedSearch = loadSavedSearch()
 
-function App() {
+function AppContent() {
+  const { user, signOut, isConfigured } = useAuth()
   const [location, setLocation] = useState(
     savedSearch?.location || { lng: null, lat: null, address: '' }
   )
@@ -35,6 +41,8 @@ function App() {
   const [selectedShop, setSelectedShop] = useState(null)
   // 地图聚焦目标：转盘揭晓赢家时立刻设置（让地图飞过去），与详情弹窗独立
   const [mapFocusShop, setMapFocusShop] = useState(null)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [authOpen, setAuthOpen] = useState(false)
 
   const didRestore = useRef(false)
 
@@ -44,10 +52,16 @@ function App() {
     setMapFocusShop(shop)
   }, [])
 
-  // 转盘揭晓回调：只让地图飞过去，不弹详情
-  const handleHighlight = useCallback((shop) => {
-    setMapFocusShop(shop)
-  }, [])
+  // 转盘揭晓回调：让地图飞过去，并（登录后）把这次抽签写入历史
+  const handleHighlight = useCallback(
+    (shop) => {
+      setMapFocusShop(shop)
+      if (user) {
+        addHistory(user.id, shop).catch((err) => console.error('[history] write failed', err))
+      }
+    },
+    [user]
+  )
 
   async function handleSearch(
     lng,
@@ -116,6 +130,26 @@ function App() {
 
   return (
     <div className={styles.app}>
+      {isConfigured && (
+        <header className={styles.topbar}>
+          <h1 className={styles.logo}>🍜 今天吃什么</h1>
+          <div className={styles.topActions}>
+            <button className={styles.topBtn} onClick={() => setDrawerOpen(true)}>
+              📚 美食库
+            </button>
+            {user ? (
+              <button className={styles.topBtn} onClick={signOut} title={user.email}>
+                👤 退出
+              </button>
+            ) : (
+              <button className={styles.topBtn} onClick={() => setAuthOpen(true)}>
+                登录
+              </button>
+            )}
+          </div>
+        </header>
+      )}
+
       <div className={styles.container}>
         <div className={styles.leftCol}>
           <SearchPanel
@@ -170,8 +204,26 @@ function App() {
       {selectedShop && (
         <ShopDetail shop={selectedShop} onClose={() => setSelectedShop(null)} />
       )}
+
+      {drawerOpen && (
+        <FavoritesDrawer
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          onSelectShop={handleSelectShop}
+        />
+      )}
+
+      {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
     </div>
   )
 }
 
-export default App
+export default function App() {
+  return (
+    <AuthProvider>
+      <FavoritesProvider>
+        <AppContent />
+      </FavoritesProvider>
+    </AuthProvider>
+  )
+}

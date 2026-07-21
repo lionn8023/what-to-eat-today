@@ -178,3 +178,26 @@
   transform: translate(-2px, -2px);
   box-shadow: 5px 5px 0px var(--black);
 }
+
+.favBtn {
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 12px;
+  border: var(--border);
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 3px 3px 0px var(--black);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.favBtn:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px var(--black);
+}
+
+.favBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

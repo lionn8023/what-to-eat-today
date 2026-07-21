@@ -1,11 +1,16 @@
 import React from 'react'
 import styles from './ShopDetail.module.css'
+import { useAuth } from '../context/AuthContext.jsx'
+import { useFavorites } from '../context/FavoritesContext.jsx'
 
 export default function ShopDetail({ shop, onClose }) {
+  const { user, isConfigured } = useAuth()
+  const { isFavorite, toggleFavorite } = useFavorites()
   if (!shop) return null
 
   const photos = Array.isArray(shop.photos) ? shop.photos : []
   const hasPhotos = photos.length > 0
+  const fav = isFavorite(shop.id)
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -15,6 +20,21 @@ export default function ShopDetail({ shop, onClose }) {
         </button>
 
         <h2 className={styles.title}>{shop.name}</h2>
+
+        {isConfigured && (
+          <button
+            className={styles.favBtn}
+            onClick={() => user && toggleFavorite(shop)}
+            disabled={!user}
+            title={user ? (fav ? '取消收藏' : '收藏这家') : '登录后可收藏'}
+            style={{
+              background: fav ? 'var(--pink)' : 'var(--white)',
+              color: fav ? 'var(--white)' : 'var(--black)',
+            }}
+          >
+            {fav ? '♥ 已收藏' : '♡ 收藏这家'}
+          </button>
+        )}
 
         {hasPhotos && (
           <div className={styles.photos}>
